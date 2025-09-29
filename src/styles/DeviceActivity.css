@@ -207,3 +207,85 @@ body { margin: 0; overflow: hidden !important; } /* không còn scrollbar của 
   border: 1px solid var(--border);
   border-radius: 12px;
 }
+/* ===== Device filter (label + select) ===== */
+label.field{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+label.field > span{
+  color: #2a2f3a;
+  font-weight: 600;
+  letter-spacing: .2px;
+  min-width: 64px;            /* canh thẳng với các field khác */
+}
+
+/* Select pill style */
+label.field select{
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #f4f8ff;
+  border: 1px solid #5aa7ff;
+  border-radius: 12px;
+  padding: 10px 38px 10px 14px; /* chừa chỗ cho icon mũi tên */
+  line-height: 1.2;
+  font-weight: 600;
+  color: #111827;
+  box-shadow: 0 1px 1px rgba(16, 24, 40, .04), 0 1px 2px rgba(16,24,40,.04);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .02s ease;
+  cursor: pointer;
+
+  /* Icon mũi tên (SVG inline để không cần wrapper) */
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7l5 5 5-5' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+}
+
+label.field select:hover{
+  border-color: #CDD5DF;
+  box-shadow: 0 2px 6px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.06);
+}
+
+label.field select:active{
+  transform: translateY(0.5px);
+}
+
+label.field select:focus{
+  outline: none;
+  border-color: #155EEF;                     /* xanh đẹp */
+  box-shadow: 0 0 0 3px rgba(21, 94, 239, .15);
+}
+
+/* Disabled state nếu cần */
+label.field select:disabled{
+  color: #9AA4B2;
+  background-color: #F8FAFC;
+  border-color: #E5E7EB;
+  cursor: not-allowed;
+}
+
+/* Responsive nhẹ: thu nhỏ padding ở màn nhỏ */
+@media (max-width: 560px){
+  label.field{
+    gap: 8px;
+  }
+  label.field > span{
+    min-width: 56px;
+  }
+  label.field select{
+    padding: 8px 34px 8px 12px;
+    border-radius: 10px;
+  }
+}
+
+/* (tuỳ chọn) đồng bộ hàng control */
+.da-controls{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}

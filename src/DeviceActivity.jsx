@@ -121,6 +121,9 @@ export default function DeviceActivity() {
   const [copiedId, setCopiedId] = useState(null);
   const timerRef = useRef(null);
 
+  // === NEW: filter thiết bị ===
+  const [device, setDevice] = useState(""); // "", "fan", "air conditioner", "light"
+
   useEffect(() => {
     const ac = new AbortController();
     (async () => {
@@ -142,6 +145,17 @@ export default function DeviceActivity() {
           }
         }
 
+        // === NEW: đưa device vào query (2 cách cho tương thích BE) ===
+        if (device) {
+          params.set("key", "device");
+          params.set("q", device);
+          params.set("device", device);
+        } else {
+          params.delete("key");
+          params.delete("q");
+          params.delete("device");
+        }
+
         const url = `${API_BASE}/api/actions?${params.toString()}`;
         const res = await fetch(url, { signal: ac.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -161,7 +175,7 @@ export default function DeviceActivity() {
       }
     })();
     return () => ac.abort();
-  }, [page, pageSize, query]);
+  }, [page, pageSize, query, device]); // <-- NEW: thêm device
 
   const pageCount = Math.max(1, pages);
   const curPage = Math.min(page, pageCount);
@@ -204,6 +218,23 @@ export default function DeviceActivity() {
         <div className="da-top">
           <h1 className="da-title">Device Activity</h1>
           <div className="da-controls" style={{ display: "flex", gap: 8 }}>
+            {/* Device filter */}
+            <label className="field">
+              <select
+                value={device}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setDevice(v);
+                  setPage(1);
+                }}
+              >
+                <option value="">All</option>
+                <option value="fan">Fan</option>
+                <option value="air conditioner">Air Conditioner</option>
+                <option value="light">Light</option>
+              </select>
+            </label>
+
             <input
               className="da-search"
               placeholder="YYYY/MM/DD HH:MM(:SS)"

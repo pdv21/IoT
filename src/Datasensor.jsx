@@ -271,6 +271,7 @@ export default function DataSensor() {
           <h1 className="ds-title">Data Sensor</h1>
 
           <div className="ds-controls" style={{ display: "flex", gap: 8 }}>
+            <label className="field">
             <select
               value={searchBy}
               onChange={(e) => setSearchBy(e.target.value)}
@@ -282,7 +283,7 @@ export default function DataSensor() {
               <option value="humidity">Humidity</option>
               <option value="light">Light</option>
             </select>
-
+            </label>    
             <input
               className="ds-search"
               placeholder={

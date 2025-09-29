@@ -4,10 +4,10 @@ export default function Profile({
   profile = {
     name: "Phạm Đức Việt",
     studentId: "B22DCCN899",
-    avatar:"/ava.png", // đường dẫn ảnh đại diện
-    github: "",          // ví dụ: "https://github.com/username"
-    APIdoc: "",
-    pdf: ""              // ví dụ: "/cv.pdf"
+    avatar:"/ava.png",
+    github: "https://github.com/pdv21/IoT",
+    APIdoc: "https://documenter.getpostman.com/view/44306843/2sB3QDwszx",
+    pdf: ""             
   },
 }) {
   const open = (url) => url && window.open(url, "_blank", "noopener,noreferrer");
@@ -40,7 +40,7 @@ export default function Profile({
             <span className="pf-label">Github:</span>
             {profile.github ? (
               <button className="pf-link" onClick={() => open(profile.github)}>
-                Mở Github
+                Github
               </button>
             ) : (
               <span className="pf-value pf-dim">—</span>
@@ -51,7 +51,7 @@ export default function Profile({
             <span className="pf-label">API doc:</span>
             {profile.APIdoc ? (
               <button className="pf-link" onClick={() => open(profile.APIdoc)}>
-                Mở API doc
+                API doc
               </button>
             ) : (
               <span className="pf-value pf-dim">—</span>
@@ -62,7 +62,7 @@ export default function Profile({
             <span className="pf-label">Pdf:</span>
             {profile.pdf ? (
               <button className="pf-link" onClick={() => open(profile.pdf)}>
-                Xem PDF
+                PDF
               </button>
             ) : (
               <span className="pf-value pf-dim">—</span>
