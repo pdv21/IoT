@@ -1,0 +1,112 @@
+/* =========================
+   Profile – clean, soft blue
+   ========================= */
+:root{
+  --panel:#ffffff;
+  --panel-soft:#e6f2ff;
+  --border:#5aa7ff;
+  --shadow:0 8px 24px rgba(11,130,255,.12);
+  --text:#0f172a;
+  --muted:#64748b;
+}
+
+/* Page wrap */
+.pf-wrap{
+  padding: 6px 8px 0 8px;
+}
+
+/* Title */
+.pf-title{
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  color: #fff;
+  text-shadow:0 3px 0 #0b82ff, 0 10px 22px rgba(11,130,255,.24);
+}
+
+/* Card layout */
+.pf-card{
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 22px;
+}
+
+/* LEFT */
+.pf-left{ display:flex; align-items:flex-start; justify-content:center; }
+.pf-avatar{
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  padding: 10px;
+  background: #f7fbff;
+  box-shadow: var(--shadow);
+}
+.pf-avatar img{
+  display:block;
+  width: 260px;
+  height: 360px;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+/* RIGHT */
+.pf-right{
+  background: var(--panel-soft);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 26px;
+}
+
+.pf-field{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.pf-label{
+  min-width: 190px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 #8fbfff,
+     1px -1px 0 #8fbfff,
+    -1px  1px 0 #8fbfff,
+     1px  1px 0 #8fbfff; /* viền chữ trắng giống ảnh */
+}
+
+.pf-value{
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.pf-dim{ color:#94a3b8; font-weight:700; }
+
+/* Buttons for links */
+.pf-link{
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(11,130,255,.12);
+}
+.pf-link:hover{ background:#eef6ff; }
+
+/* Responsive */
+@media (max-width: 1100px){
+  .pf-card{ grid-template-columns: 1fr; }
+  .pf-left{ justify-content: flex-start; }
+  .pf-avatar img{ width: 220px; height: 220px; }
+  .pf-label, .pf-value{ font-size: 24px; }
+}

@@ -1,0 +1,209 @@
+/* =========================
+   Device Activity – sticky header, no gap
+   ========================= */
+
+:root{
+  --panel:#ffffff;
+  --panel-soft:#f4f8ff;
+  --border:#94c6ff;
+  --border-strong:#5aa7ff;
+  --text:#0f172a;
+  --muted:#475569;
+  --brand:#0b82ff;
+}
+
+/* Layout wrapper */
+.da-wrap{ height: calc(100vh - 60px); box-sizing: border-box; }
+
+/* Top bar */
+.da-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.da-title{
+  margin:0; font-size:46px; font-weight:900; color:#5aa7ff; letter-spacing:.3px;
+}
+
+/* Controls */
+.da-controls{ display:flex; gap:12px; align-items:center; }
+.da-select,.da-psize{
+  height:36px; padding:0 12px; border-radius:12px; border:1px solid var(--border);
+  background:var(--panel-soft); font-weight:700; color:var(--text); outline:none;
+}
+.da-search{
+  height:36px; width:240px; padding:0 12px; border-radius:12px; border:1px solid var(--border);
+  background:#eef5ff; outline:none; font-weight:600; color:var(--text);
+}
+.da-search::placeholder{ color:#9aa3af; }
+
+/* Card */
+.da-card{
+  height:700px;
+  display:grid; grid-template-rows: 1fr auto; gap:10px;
+  padding:12px; background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+/* Scroll area */
+.da-scroller{
+  min-height:0;
+  overflow:auto;
+  background:#fff;
+  scrollbar-gutter: stable; /* tránh nhảy layout khi xuất hiện thanh cuộn */
+}
+
+/* ==== One table only, sticky header (no gap) ==== */
+.da-table.da-sticky{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+  color:var(--text);
+}
+
+/* Sticky thead */
+.da-table.da-sticky thead th{
+  position: sticky; top: 0; z-index: 2;
+  background:#d9ecff;
+  padding:12px 14px;
+  text-align:left; font-size:18px; font-weight:700;
+  border-top:2px solid var(--border-strong);
+  border-bottom:2px solid var(--border-strong); /* dính liền body, không khe */
+}
+.da-table.da-sticky thead th:first-child{ border-left:2px solid var(--border-strong); border-top-left-radius:12px; }
+.da-table.da-sticky thead th:last-child { border-right:2px solid var(--border-strong); border-top-right-radius:12px; }
+
+/* Body rows */
+.da-table.da-sticky tbody td{
+  padding:12px 14px; font-weight:600;
+  border-bottom:1.5px solid var(--border);
+}
+.da-table.da-sticky tbody tr:nth-child(odd) td{ background:#f8fbff; }
+.da-table.da-sticky tbody tr:hover td{ background:#eef6ff; }
+.da-table.da-sticky tbody td.id{ text-align:left; font-variant-numeric:tabular-nums; color:#334155; width:80px; }
+
+/* Side frames only across existing rows */
+.da-table.da-sticky tbody td:first-child{ border-left:2px solid var(--border-strong); }
+.da-table.da-sticky tbody td:last-child { border-right:2px solid var(--border-strong); }
+
+/* Close bottom + rounded corners */
+.da-table.da-sticky tbody tr:last-child td{
+  border-bottom:2px solid var(--border-strong);
+}
+.da-table.da-sticky tbody tr:last-child td:first-child{ border-bottom-left-radius:12px; }
+.da-table.da-sticky tbody tr:last-child td:last-child { border-bottom-right-radius:12px; }
+
+/* Empty state */
+.da-table.da-sticky .empty{
+  text-align:center; padding:36px 12px; color:#64748b; font-weight:700;
+  border-left:2px solid var(--border-strong); border-right:2px solid var(--border-strong);
+  border-bottom:2px solid var(--border-strong); border-bottom-left-radius:12px; border-bottom-right-radius:12px;
+}
+
+/* Footer */
+.da-footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.da-results{ color:#64748b; font-weight:700; }
+
+/* Pagination */
+.da-pager{ display:flex; align-items:center; gap:6px; }
+.pg{
+  min-width:34px; height:32px; border-radius:10px; border:1px solid var(--border);
+  background:#ffffff; cursor:pointer; font-weight:800; color:#0f172a;
+  box-shadow:0 2px 8px rgba(2,132,199,.06);
+}
+.pg:hover{ background:#f3f9ff; }
+.pg:disabled{ opacity:.5; cursor:not-allowed; }
+.pg.num.active{ background:var(--brand); color:#fff; border-color:#0b73ea; }
+.dots{ padding:0 4px; color:#64748b; font-weight:800; }
+
+/* Status colors for ON / OFF */
+.status-pill{
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid transparent;
+}
+
+/* ON = xanh */
+.status-on{
+  color: #065f46;
+  background: #ecfdf5;          /* xanh rất nhạt */
+  border-color: #a7f3d0;
+}
+
+/* OFF = đỏ */
+.status-off{
+  color: #991b1b;
+  background: #fef2f2;          /* đỏ rất nhạt */
+  border-color: #fecaca;
+}
+
+/* Low-height screens */
+@media (max-height:820px){
+  .da-card{ height:calc(100% - 8px); }
+}
+
+.da-search-btn{ height:36px; border:1px solid #d0d7de; background:#fff; border-radius:8px; padding:0 12px; cursor:pointer; }
+/* ---- KHÓA CUỘN TOÀN TRANG ---- */
+html, body, #root { height: 100%; }
+body { margin: 0; overflow: hidden !important; } /* không còn scrollbar của trình duyệt */
+
+/* Vùng khung toàn màn */
+.page-lock{
+  height: 100vh;           /* chiếm trọn chiều cao màn hình */
+  overflow: hidden;        /* không cho phần bên ngoài cuộn */
+  background: #5ec7ff1a;   /* optional: nền nhạt giống dashboard */
+}
+
+/* Vùng NỘI DUNG sẽ là nơi duy nhất được cuộn */
+.page-lock__viewport{
+  height: 100%;
+  overflow: auto;          /* nếu dài thì cuộn ở đây (cả trang), không phải bảng */
+  padding: 24px;           /* đệm xung quanh nội dung */
+  box-sizing: border-box;
+}
+
+/* Nếu bạn có header cố định của app (ví dụ topbar 64px), bật 2 rule dưới: */
+/*
+:root{ --app-header-h: 64px; }
+.page-lock{ height: calc(100vh - var(--app-header-h)); }
+.page-lock__viewport{ height: calc(100vh - var(--app-header-h)); }
+*/
+
+/* Giữ thead sticky nhưng theo viewport của trang (không dính vào window) */
+.page-lock__viewport .ds-table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+}
+
+/* Ghim thanh pager ở đáy viewport để luôn thấy (tùy chọn) */
+.page-lock__viewport .pager{
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: 1px solid var(--border);
+  z-index: 3;
+}
+
+/* (Khuyến nghị) Đảm bảo chỉ còn 1 scrollbar ở viewport */
+.ds-table{ overflow: visible; } /* bảng không tự tạo cuộn */
+
+.board-da .card{
+  border: 0 !important;           /* bỏ viền xanh ngoài */
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+
+/* Nếu Dashboard.css có pseudo border, tắt luôn */
+.board-da .card::before,
+.board-da .card::after{ content: none !important; }
+
+/* (tuỳ chọn) viền của BẢNG bên trong vẫn giữ */
+.board-da .ds-table{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}

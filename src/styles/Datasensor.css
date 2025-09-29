@@ -1,0 +1,184 @@
+/* =========================
+   Data Sensor – sticky header, 1 scrollbar, no gap
+   ========================= */
+
+:root{
+  --panel:#ffffff;
+  --panel-soft:#f4f8ff;
+  --border:#94c6ff;          /* row separators */
+  --border-strong:#5aa7ff;   /* frame lines */
+  --text:#0f172a;
+  --muted:#475569;
+  --brand:#0b82ff;
+}
+
+/* Layout */
+.ds-wrap{ height:calc(100vh - 60px); box-sizing:border-box; }
+.ds-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.ds-title{
+  margin:0; font-size:46px; font-weight:900; color:#5aa7ff; letter-spacing:.3px;
+}
+
+/* Controls */
+.ds-controls{ display:flex; gap:12px; align-items:center; }
+.ds-select,.ds-psize{
+  height:36px; padding:0 12px; border-radius:12px; border:1px solid var(--border);
+  background:var(--panel-soft); font-weight:700; color:var(--text); outline:none;
+}
+.ds-search{
+  height:36px; width:240px; padding:0 12px; border-radius:12px; border:1px solid var(--border);
+  background:#eef5ff; outline:none; font-weight:600; color:var(--text);
+}
+.ds-search::placeholder{ color:#9aa3af; }
+
+/* Card */
+.ds-card{
+  height:700px;
+  display:grid; grid-template-rows: 1fr auto; gap:10px;
+  padding:12px; background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+/* Scroll area */
+.ds-scroller{
+  min-height:0; overflow:auto; background:#fff;
+  scrollbar-gutter: stable;
+}
+
+/* Single table with sticky thead (no header/body gap) */
+.ds-table.ds-sticky{
+  width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; color:var(--text);
+}
+
+/* Header */
+.ds-table.ds-sticky thead th{
+  position:sticky; top:0; z-index:2;
+  background:#d9ecff;
+  padding:12px 14px; text-align:left; font-size:18px; font-weight:700;
+  border-top:2px solid var(--border-strong);
+  border-bottom:2px solid var(--border-strong);
+}
+.ds-table.ds-sticky thead th:first-child{ border-left:2px solid var(--border-strong); border-top-left-radius:12px; }
+.ds-table.ds-sticky thead th:last-child { border-right:2px solid var(--border-strong); border-top-right-radius:12px; }
+
+/* Body rows */
+.ds-table.ds-sticky tbody td{
+  padding:12px 14px; font-weight:600; border-bottom:1.5px solid var(--border);
+}
+.ds-table.ds-sticky tbody tr:nth-child(odd) td{ background:#f8fbff; }
+.ds-table.ds-sticky tbody tr:hover td{ background:#eef6ff; }
+.ds-table.ds-sticky tbody td.id{ text-align:left; font-variant-numeric:tabular-nums; color:#334155; width:80px; }
+
+/* Frame sides only for existing rows (no dangling lines) */
+.ds-table.ds-sticky tbody td:first-child{ border-left:2px solid var(--border-strong); }
+.ds-table.ds-sticky tbody td:last-child { border-right:2px solid var(--border-strong); }
+
+/* Close bottom + rounded corners */
+.ds-table.ds-sticky tbody tr:last-child td{
+  border-bottom:2px solid var(--border-strong);
+}
+.ds-table.ds-sticky tbody tr:last-child td:first-child{ border-bottom-left-radius:12px; }
+.ds-table.ds-sticky tbody tr:last-child td:last-child { border-bottom-right-radius:12px; }
+
+/* Empty state */
+.ds-table.ds-sticky .empty{
+  text-align:center; padding:36px 12px; color:#64748b; font-weight:700;
+  border-left:2px solid var(--border-strong); border-right:2px solid var(--border-strong);
+  border-bottom:2px solid var(--border-strong); border-bottom-left-radius:12px; border-bottom-right-radius:12px;
+}
+
+/* Footer */
+.ds-footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.ds-results{ color:#64748b; font-weight:700; }
+
+.ds-pager{ display:flex; align-items:center; gap:6px; }
+.pg{
+  min-width:34px; height:32px; border-radius:10px; border:1px solid var(--border);
+  background:#ffffff; cursor:pointer; font-weight:800; color:#0f172a;
+  box-shadow:0 2px 8px rgba(2,132,199,.06);
+}
+.pg:hover{ background:#f3f9ff; }
+.pg:disabled{ opacity:.5; cursor:not-allowed; }
+.pg.num.active{ background:var(--brand); color:#fff; border-color:#0b73ea; }
+.dots{ padding:0 4px; color:#64748b; font-weight:800; }
+
+/* Low-height screens */
+@media (max-height:820px){
+  .ds-card{ height:calc(100% - 8px); }
+}
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.sort-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  padding: 2px 6px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sort-btn.active {
+  border-color: #aaa;
+  background: #f6f6f6;
+}
+.sort-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ds-select{ height:36px; border:1px solid #d0d7de; border-radius:8px; padding:0 10px; }
+.ds-search{ height:36px; }
+.ds-search-btn{ height:36px; border:1px solid #d0d7de; background:#fff; border-radius:8px; padding:0 12px; cursor:pointer; }
+.time-copy-btn{ background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; }
+.copied-tip{ font-size:12px; margin-left:6px; opacity:.8; }
+/* Make Time chip same font/size as other cells (e.g., Light) */
+.table td,
+.table th{
+  font-size: 14px;                 /* nếu bạn dùng cỡ khác, chỉnh 1 chỗ này */
+  line-height: 1.4;
+}
+
+/* Time chip — giữ chip gọn nhưng dùng chính font của bảng */
+.time-copy-btn{
+  font-family: inherit !important;  /* cùng font với cột Light */
+  font-size: inherit !important;    /* cùng cỡ chữ */
+  font-weight: 500;                 /* hoặc dùng 'normal' nếu muốn mảnh hơn */
+  line-height: 1.4;
+  padding: 2px 8px;                 /* thu nhỏ để cao bằng dòng text */
+  border-radius: 6px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;             /* căn giữa theo chiều dọc */
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* Hover/active như cũ — tùy chọn */
+.time-copy-btn:hover{ 
+  background: #eaf4ff;
+  border-color: var(--border-strong);
+}
+.time-copy-btn:active{ transform: translateY(.5px); }
+.time-copy-btn:focus-visible{ outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Bạn có thể GIỮ hoặc BỎ viền ngoài riêng cho DS */
+.board-ds .card{
+  /* nếu muốn giữ viền: comment dòng dưới; muốn bỏ viền: bật dòng dưới */
+  /* border: 0 !important; */
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+
+.board-ds .card::before,
+.board-ds .card::after{ content: none !important; }
+
+.board-ds .ds-table{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
