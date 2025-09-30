@@ -20,10 +20,10 @@ function Shell() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <img src="/logo1 1.png" alt="" className="logo" />
         <div className="brand">
-          <div className="title">IoT Controller</div>
-        </div>
+  <img src="/logo1 1.png" alt="IoT logo" className="logo" />
+  <h1 className="title">IoT Controller</h1>
+</div>
         <nav className="menu" aria-label="Main">
           {items.map(({to,label,icon,end}) => (
             <NavLink key={to} to={to} end={end}

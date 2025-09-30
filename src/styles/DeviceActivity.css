@@ -16,7 +16,7 @@
 .da-wrap{ height: calc(100vh - 60px); box-sizing: border-box; }
 
 /* Top bar */
-.da-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.da-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:0px; }
 .da-title{
   margin:0; font-size:46px; font-weight:900; color:#5aa7ff; letter-spacing:.3px;
 }
@@ -35,7 +35,7 @@
 
 /* Card */
 .da-card{
-  height:700px;
+  height:670px;
   display:grid; grid-template-rows: 1fr auto; gap:10px;
   padding:12px; background:#fff;
   border-radius:18px;
@@ -99,7 +99,7 @@
 }
 
 /* Footer */
-.da-footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.da-footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top: 15px}
 .da-results{ color:#64748b; font-weight:700; }
 
 /* Pagination */

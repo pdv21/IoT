@@ -13,8 +13,8 @@
 }
 
 /* Layout */
-.ds-wrap{ height:calc(100vh - 60px); box-sizing:border-box; }
-.ds-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.ds-wrap{ height: 1700px; box-sizing:border-box; }
+.ds-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:0px; }
 .ds-title{
   margin:0; font-size:46px; font-weight:900; color:#5aa7ff; letter-spacing:.3px;
 }
@@ -33,7 +33,7 @@
 
 /* Card */
 .ds-card{
-  height:700px;
+  height:670px;
   display:grid; grid-template-rows: 1fr auto; gap:10px;
   padding:12px; background:#fff;
   border-radius:18px;
@@ -167,18 +167,3 @@
 .time-copy-btn:active{ transform: translateY(.5px); }
 .time-copy-btn:focus-visible{ outline: 2px solid var(--brand); outline-offset: 2px; }
 
-/* Bạn có thể GIỮ hoặc BỎ viền ngoài riêng cho DS */
-.board-ds .card{
-  /* nếu muốn giữ viền: comment dòng dưới; muốn bỏ viền: bật dòng dưới */
-  /* border: 0 !important; */
-  box-shadow: 0 10px 30px rgba(0,0,0,.06);
-  background: #fff;
-}
-
-.board-ds .card::before,
-.board-ds .card::after{ content: none !important; }
-
-.board-ds .ds-table{
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
