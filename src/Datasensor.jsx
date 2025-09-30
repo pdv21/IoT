@@ -288,7 +288,7 @@ export default function DataSensor() {
               className="ds-search"
               placeholder={
                 searchBy === "all"
-                  ? "YYYY/MM/DD HH:MM(:SS) hoặc giá trị"
+                  ? "YYYY/MM/DD HH:MM(:SS)"
                   : `Search by ${searchBy}`
               }
               value={pendingQuery}

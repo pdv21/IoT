@@ -546,51 +546,40 @@ export default function DashboardPage() {
         </div>
 
         {/* CONTROLS */}
-        <div className="card controls">
-          <div className="controls-head">
-            <div className="actions">
-              <button
-                className={`btn ${live ? "primary" : ""}`}
-                onClick={() => setLive((v) => !v)}
-              >
-                {live ? "Live On" : "Live Off"}
-              </button>
-              <button
-                className="btn"
-                onClick={() => setLinked((v) => !v)}
-                title="(reserved)"
-              >
-                {linked ? <Link size={16} /> : <Link2Off size={16} />}
-              </button>
-              <button className="btn" onClick={handleRefresh}>
-                <RotateCcw size={16} /> Refresh
-              </button>
-            </div>
-          </div>
+        {/* CONTROLS */}
+<div className="card controls">
+  <div className="controls-head">
+    <div className="actions">
+      <button
+        className={`btn ${live ? "primary" : ""}`}
+        onClick={() => setLive(v => !v)}
+      >
+        {live ? "Live On" : "Live Off"}
+      </button>
+      <button className="btn refresh" onClick={handleRefresh}>
+        <RotateCcw size={16} /> Refresh
+      </button>
+    </div>
+  </div>
 
-          {/* Chart window selector */}
-          <div className="controls-subrow">
-            <span style={{ fontWeight: 800, color: "#0f172a" }}>
-              Chart window:
-            </span>
-            <select
-              value={windowMs}
-              onChange={async (e) => {
-                const v = +e.target.value;
-                setWindowMs(v);
-                await fetchWindowByNow(v); // dùng ngay giá trị mới + limit động
-              }}
-              className="btn"
-              style={{ height: 34 }}
-              title="Hiển thị dữ liệu trong vòng N đơn vị thời gian gần nhất (so với hiện tại)"
-            >
-              {presets.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
+  {/* Chart window selector */}
+  <div className="controls-subrow">
+    <span className="cw-label">Chart window:</span>
+    <select
+      value={windowMs}
+      onChange={async (e) => {
+        const v = +e.target.value;
+        setWindowMs(v);
+        await fetchWindowByNow(v);
+      }}
+      className="btn cw-select"
+      title="Hiển thị dữ liệu trong vòng N đơn vị thời gian gần nhất (so với hiện tại)"
+    >
+      {presets.map((p) => (
+        <option key={p.value} value={p.value}>{p.label}</option>
+      ))}
+    </select>
+  </div>
 
           <div className={`control ${ac ? "on" : "off"}`}>
             <div className="icon ac">

@@ -27,431 +27,190 @@
   --muted:#475569;
 }
 
+/* ========= RESET ========= */
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 body{margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);}
+html, body, #root { overflow:auto; }
 
-/* ===== LAYOUT CHUNG ===== */
-.app{
-  height:100vh; width:100vw;
-  display:grid; grid-template-columns:300px minmax(0,1fr);
-}
-
-/* Sidebar */
-.sidebar{
-  color:#fff; height:100vh; position:sticky; top:0;
-  padding:28px 18px;
-  background:linear-gradient(180deg,var(--sidebar-grad-1),var(--sidebar-grad-2));
-  box-shadow:4px 0 16px rgba(0,0,0,.08);
-}
-.brand{display:flex;align-items:center;gap:12px;margin:6px 0 26px}
-.brand .logo{font-size:46px;line-height:1}
-.brand .title{font-weight:900;font-size:30px;line-height:1.05;letter-spacing:.3px}
-
-.menu{display:flex;flex-direction:column;gap:12px}
-.menu .item{
-  display:flex;align-items:center;gap:12px;
-  height:46px;padding:0 14px;border-radius:14px;
-  font-weight:800;color:#eaf6ff;text-decoration:none;opacity:.95;
-  transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-  outline:0;
-}
-.menu .item:hover{background:rgba(255,255,255,.14)}
-.menu .item:focus-visible{box-shadow:0 0 0 3px rgba(255,255,255,.45)}
-.menu .item.active{
-  background:#0b5fff;
-  box-shadow:inset 0 0 0 2x rgba(255,255,255,.28), 0 6px 14px rgba(0,0,0,.15);
-  color:#fff; transform:translateY(-1px);
-}
-
-/* Main + Board (glass nhẹ) */
-.main{padding:26px 28px; overflow:hidden;}
+/* ========= LAYOUT ========= */
+.app{height:100vh;width:100vw;display:grid;grid-template-columns:300px minmax(0,1fr);}
+.main{padding:26px 28px;overflow:auto;}
 .board{
   height:calc(90vh - 52px);
   background:var(--panel);
   border-radius:28px;
   padding:22px;
   border:1px solid rgba(255,255,255,.9);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.65),
-    0 24px 48px rgba(11,130,255,.16),
-    0 8px 24px rgba(15,23,42,.08);
-  display:flex; flex-direction:column; gap:16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 24px 48px rgba(11,130,255,.16),0 8px 24px rgba(15,23,42,.08);
+  display:flex;flex-direction:column;gap:16px;
 }
-
-/* Topbar */
-.topbar{display:flex;justify-content:flex-end;align-items:center; padding-bottom: 30px;}
-.user{display:flex;align-items:center;gap:12px;font-weight:800;color:#000000}
+.topbar{display:flex;justify-content:flex-end;align-items:center;padding-bottom:30px;}
+.user{display:flex;align-items:center;gap:12px;font-weight:800;color:#000}
 .user img{width:44px;height:44px;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,.15)}
 
-/* ===== KPI — làm mới: khối glass, icon tách cạnh, số to ===== */
-.kpis{
-  flex:0 0 140px;
-  display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
-  background:#CEE8FF; border-radius:22px; padding:14px;
+/* ========= SIDEBAR ========= */
+.sidebar{
+  color:#fff;height:100vh;position:sticky;top:0;padding:28px 18px;
+  background:linear-gradient(180deg,var(--sidebar-grad-1),var(--sidebar-grad-2));
+  box-shadow:4px 0 16px rgba(0,0,0,.08);
 }
+.brand{display:flex;align-items:center;gap:12px;margin:6px 0 26px}
+.brand .logo{font-size:46px;line-height:1}
+.brand .title{font-weight:900;font-size:30px;line-height:1.05;letter-spacing:.3px}
+.menu{display:flex;flex-direction:column;gap:12px}
+.menu .item{
+  display:flex;align-items:center;gap:12px;height:46px;padding:0 14px;border-radius:14px;
+  font-weight:800;color:#eaf6ff;text-decoration:none;opacity:.95;
+  transition:transform .08s ease,background .2s ease,box-shadow .2s ease;outline:0;
+}
+.menu .item:hover{background:rgba(255,255,255,.14)}
+.menu .item:focus-visible{box-shadow:0 0 0 3px rgba(255,255,255,.45)}
+.menu .item.active{background:#0b5fff;box-shadow:0 6px 14px rgba(0,0,0,.15);color:#fff;transform:translateY(-1px)}
+
+/* ========= KPI ========= */
+.kpis{flex:0 0 140px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;background:#CEE8FF;border-radius:22px;padding:14px;}
 .kpi{
-  height:120px;border-radius:22px;color:#fff;
-  padding:0; position:relative;
-  box-shadow:0 12px 22px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.4);
-  transition: transform .15s ease, box-shadow .2s ease;
-  overflow:hidden;
+  height:120px;border-radius:22px;color:#fff;padding:0;position:relative;overflow:hidden;
+  box-shadow:0 12px 22px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .15s ease,box-shadow .2s ease,background .35s ease;
 }
-.kpi:hover{ transform: translateY(-2px); box-shadow:0 16px 28px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.5) }
-.kpi-inner{
-  height:100%; display:grid; grid-template-columns:1fr 92px; gap:8px; align-items:center;
-  padding:18px 20px;
-  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
-}
-.kpi-left{ display:flex; flex-direction:column; }
-.kpi-title{
-  display:flex; align-items:center; gap:8px;
-  font-weight:800; opacity:.95; text-shadow:0 1px 1px rgba(0,0,0,.18);
-}
-.kpi-value{ margin-top:6px; display:flex; align-items:baseline; gap:6px; }
-.kpi-value .num{ font-size:38px; font-weight:900; text-shadow:0 2px 6px rgba(0,0,0,.18) }
-.kpi-value .unit{ font-size:14px; font-weight:800; opacity:.95 }
-.kpi-icon{
-  justify-self:end; align-self:center;
-  width:72px; height:72px; border-radius:16px;
-  background:rgba(255,255,255,.18); display:grid; place-items:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
-}
-.kpi-icon img{ width:40px; height:40px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
+.kpi:hover{transform:translateY(-2px);box-shadow:0 16px 28px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.5)}
+.kpi-inner{height:100%;display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:center;padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));}
+.kpi-left{display:flex;flex-direction:column;}
+.kpi-title{display:flex;align-items:center;gap:8px;font-weight:800;opacity:.95;text-shadow:0 1px 1px rgba(0,0,0,.18);}
+.kpi-value{margin-top:6px;display:flex;align-items:baseline;gap:6px;}
+.kpi-value .num{font-size:38px;font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.18)}
+.kpi-value .unit{font-size:14px;font-weight:800;opacity:.95}
+.kpi-icon{justify-self:end;align-self:center;width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.18);display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.kpi-icon img{width:40px;height:40px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.kpi-temp{background:linear-gradient(90deg,var(--temp-from),var(--temp-to))}
+.kpi-hum{ background:linear-gradient(90deg,var(--hum-from),var(--hum-to))}
+.kpi-lux{ background:linear-gradient(90deg,var(--lux-from),var(--lux-to))}
+.kpi.temp-l1{background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+.kpi.temp-l2{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.kpi.temp-l3{background:linear-gradient(90deg,#f97316,#ef4444)}
+.kpi.hum-l1{ background:linear-gradient(90deg,#94a3b8,#64748b)}
+.kpi.hum-l2{ background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+.kpi.hum-l3{ background:linear-gradient(90deg,#2563eb,#1e3a8a)}
+.kpi.lux-l1{ background:linear-gradient(90deg,#94a3b8,#64748b)}
+.kpi.lux-l2{ background:linear-gradient(90deg,#f59e0b,#fde047)}
+.kpi.lux-l3{ background:linear-gradient(90deg,#fde68a,#facc15)}
 
-/* Gradient theo mức */
-.kpi-temp{ background:linear-gradient(90deg,var(--temp-from),var(--temp-to)) }
-.kpi-hum{  background:linear-gradient(90deg,var(--hum-from), var(--hum-to)) }
-.kpi-lux{  background:linear-gradient(90deg,var(--lux-from), var(--lux-to)) }
-
-.kpi{ transition: background .35s ease, box-shadow .35s ease }
-.kpi.temp-l1{ background: linear-gradient(90deg,#22d3ee,#3b82f6) }
-.kpi.temp-l2{ background: linear-gradient(90deg,#fbbf24,#f59e0b) }
-.kpi.temp-l3{ background: linear-gradient(90deg,#f97316,#ef4444) }
-.kpi.hum-l1{  background: linear-gradient(90deg,#94a3b8,#64748b) }
-.kpi.hum-l2{  background: linear-gradient(90deg,#22d3ee,#3b82f6) }
-.kpi.hum-l3{  background: linear-gradient(90deg,#2563eb,#1e3a8a) }
-.kpi.lux-l1{  background: linear-gradient(90deg,#94a3b8,#64748b) }
-.kpi.lux-l2{  background: linear-gradient(90deg,#f59e0b,#fde047) }
-.kpi.lux-l3{  background: linear-gradient(90deg,#fde68a,#facc15) }
-
-/* ===== CONTENT GRID ===== */
-.content{
-  flex:1 1 auto; min-height:0;
-  display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:18px; align-items:stretch;
-}
-
-/* Chart card */
-.card{background:var(--panel-soft); border-radius:20px; padding:16px; border:1px solid #d7edff; box-shadow:0 6px 18px rgba(30,144,255,.10)}
-.chart-card{
-  background:linear-gradient(#fafdff,#f2f8ff);
-  border:10px solid #cfe8ff; border-radius:22px; padding:10px 12px;
-  display:flex; height:100%;
-}
+/* ========= CONTENT GRID ========= */
+.content{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;align-items:stretch;}
+.card{background:var(--panel-soft);border-radius:20px;padding:16px;border:1px solid #d7edff;box-shadow:0 6px 18px rgba(30,144,255,.10)}
+.chart-card{background:linear-gradient(#fafdff,#f2f8ff);border:10px solid #cfe8ff;border-radius:22px;padding:10px 12px;display:flex;height:100%;}
 .chart{width:100%;height:100%}
 .axis{stroke:#9aa7b5;stroke-width:1}
 .grid{stroke:#e6eef6;stroke-width:1}
 .line{fill:none;stroke-width:3}
 .line.s-temp{stroke:var(--stroke-temp)}
-.line.s-hum{ stroke:var(--stroke-hum)}
-.line.s-lux{ stroke:var(--stroke-lux)}
+.line.s-hum {stroke:var(--stroke-hum)}
+.line.s-lux {stroke:var(--stroke-lux)}
 .legend text,.tick{fill:#334155;font-size:11px}
 
-/* ===== Controls (cột phải) — nâng cấp: header, badge, đổ bóng đẹp ===== */
+/* ========= CONTROLS (cột phải) ========= */
 .controls{
-  background:#ffffff; border-radius:22px; padding:16px; height:100%;
-  display:flex; flex-direction:column; gap:14px; overflow:hidden;
+  background:#CEE8FF;border:1px solid #dbeafe;border-radius:22px;padding:16px;height:100%;
+  display:flex;flex-direction:column;gap:12px;
+  box-shadow:0 10px 24px rgba(2,132,199,.10),inset 0 1px 0 rgba(255,255,255,.6);
 }
+
+/* Header nút Live/Refresh: KHÔNG nền khung to */
 .controls-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:4px 6px 8px; border-bottom:1px dashed #dbeafe; margin-bottom:4px;
+  display:flex;align-items:center;justify-content:flex-start;gap:10px;
+  padding:0;margin:0 0 8px; /* không background/border */
 }
-.status{ display:flex; align-items:center; gap:10px; font-weight:800; color:#0f172a }
-.status .dot{ width:10px; height:10px; border-radius:50%; background:#94a3b8; box-shadow:0 0 0 4px rgba(148,163,184,.18) }
-.status .dot.ok{ background:#22c55e }
-.status .dot.warn{ background:#f59e0b }
-.status .dot.bad{ background:#ef4444 }
-.actions{ display:flex; gap:8px }
+.actions{display:flex;gap:10px}
 .btn{
-  height:34px; padding:0 12px; border-radius:10px; border:1px solid #dbeafe; background:#f8fbff;
-  font-weight:800; color:#0f172a; display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  height:36px;padding:0 14px;border-radius:12px;border:1px solid #dbeafe;background:#f8fbff;
+  font-weight:900;color:#0f172a;display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  transition:transform .06s ease,background .2s ease,box-shadow .2s ease;
 }
-.btn.primary{ background:#0ea5e9; color:#fff; border-color:#0ea5e9 }
+.btn:hover{transform:translateY(-1px);background:#eef6ff}
+.btn:active{transform:translateY(0)}
+.btn svg{width:16px;height:16px;display:block}
+.btn.primary{background:#0ea5e9;color:#fff;border-color:#0ea5e9;box-shadow:0 6px 14px rgba(14,165,233,.18)}
+.btn.refresh:hover svg{transform:rotate(-35deg);transition:transform .2s ease}
 
-/* mỗi dòng control */
+/* Hàng “Chart window” */
+.controls-subrow{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;margin:2px 0 8px;
+  border:1px solid #e6f0ff;border-radius:12px;background:#f9fcff;
+}
+.cw-label{min-width:110px;font-weight:900;color:#0f172a}
+.cw-select{
+  height:36px;line-height:36px;border-radius:999px;padding:0 34px 0 12px;font-weight:900;appearance:none;
+  background:linear-gradient(180deg,#ffffff,#f6fbff) padding-box,
+             radial-gradient(120% 120% at 50% -20%,#cde8ff,#e8f3ff) border-box;
+  border:1px solid #cfe3ff;box-shadow:inset 0 1px 0 #fff,0 6px 12px rgba(30,144,255,.08);
+}
+.cw-select:focus{outline:none;box-shadow:0 0 0 3px rgba(56,189,248,.25),inset 0 1px 0 #fff}
+
+/* Huy hiệu Anchor (nếu dùng) */
+.anchor-badge{
+  margin-left:auto;display:grid;justify-items:end;align-items:center;gap:2px;
+  padding:8px 10px;min-width:168px;border:1px solid #e2ecff;border-radius:12px;background:#fff;
+  box-shadow:inset 0 1px 0 #fff,0 6px 14px rgba(2,132,199,.06);
+  color:#334155;font-weight:900;font-variant-numeric:tabular-nums;
+}
+.anchor-badge::before{content:"Anchor:";color:#64748b;font-size:12px;font-weight:900;margin-bottom:2px}
+.anchor-badge .time{font-size:14px}
+.anchor-badge .date{font-size:12px;opacity:.95}
+
+/* Mỗi dòng control (thiết bị) */
 .control{
-  display:grid; grid-template-columns:44px 1fr auto; align-items:center; gap:12px;
-  padding:16px; border-radius:16px;
-  background:linear-gradient(180deg,#f6fbff,#eaf5ff);
-  border:1px solid #d8ebff;
-  box-shadow:0 6px 12px rgba(2,132,199,.08);
+  display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;
+  padding:16px;border-radius:16px;background:linear-gradient(180deg,#f6fbff,#eaf5ff);
+  border:1px solid #d8ebff;box-shadow:0 8px 16px rgba(2,132,199,.08);
 }
-.control .icon{font-size:22px; filter:drop-shadow(0 1px 0 rgba(255,255,255,.6))}
+.control + .control{margin-top:8px}
+.control .icon{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#ffffff,#f5fafe);border:1px solid #e2ecff;
+  box-shadow:inset 0 1px 0 #fff,0 6px 14px rgba(2,132,199,.06);
+}
+.control .icon svg{width:22px;height:22px}
 .control .label .name{font-weight:900;color:#0f172a}
-.control .label .sub{font-weight:700; color:#64748b; font-size:12px; margin-top:2px}
-.right{ display:flex; align-items:center; gap:10px }
+.control .label .sub{font-weight:700;color:#64748b;font-size:12px;margin-top:2px}
 
-/* badge trạng thái */
-.badge{
-  height:24px; border-radius:999px; padding:0 10px;
-  font-size:12px; font-weight:900; display:inline-flex; align-items:center; justify-content:center;
-  border:1px solid rgba(0,0,0,.06);
-}
-.badge.on{ background:#dcfce7; color:#166534; }
-.badge.off{ background:#fee2e2; color:#991b1b; }
+.badge{height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid rgba(0,0,0,.06)}
+.badge.on{background:#dcfce7;color:#166534}
+.badge.off{background:#fee2e2;color:#991b1b}
 
-/* Toggle switch — lớn hơn, bắt mắt */
 .toggle{
-  --w:70px; --h:32px;
-  width:var(--w); height:var(--h);
-  border:none; border-radius:999px; position:relative; cursor:pointer;
-  background:#d1d5db; transition:background .25s ease, box-shadow .2s ease;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.2);
+  --w:70px;--h:32px;width:var(--w);height:var(--h);border:none;border-radius:999px;cursor:pointer;
+  background:#d1d5db;transition:background .2s ease,box-shadow .2s ease;box-shadow:inset 0 1px 2px rgba(0,0,0,.18);
+  position:relative;
 }
-.toggle span{
-  position:absolute; left:5px; top:5px; width:22px; height:22px; border-radius:50%;
-  background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.18); transition:transform .25s ease;
-}
-.toggle.on{background:var(--toggle-on); box-shadow:inset 0 1px 2px rgba(0,0,0,.15), 0 0 0 3px rgba(34,197,94,.22)}
+.toggle span{position:absolute;left:5px;top:5px;width:22px;height:22px;border-radius:999px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+.toggle.on{background:var(--toggle-on);box-shadow:inset 0 1px 2px rgba(0,0,0,.12),0 0 0 3px rgba(34,197,94,.16)}
 .toggle.on span{transform:translateX(calc(var(--w) - 27px))}
 
-/* Icon màu và animation giữ nguyên nhưng tinh chỉnh */
-.control .icon svg { width:24px; height:24px; display:block; }
-.icon.ac   { color:#0ea5e9; }   /* Snowflake */
-.icon.fan  { color:#3b82f6; }   /* Fan */
-.icon.light{ color:#f59e0b; }   /* Lightbulb */
+/* Icon màu + animation */
+.icon.ac{color:#0ea5e9}
+.icon.fan{color:#3b82f6}
+.icon.light{color:#f59e0b}
+@keyframes spinFan{to{transform:rotate(360deg)}}
+.control.on .icon.fan svg{animation:spinFan .9s linear infinite;transform-origin:center}
+.control.off .icon.fan svg{opacity:.65}
+@keyframes breezeAC{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(2px) rotate(-2deg)}}
+.control.on .icon.ac svg{animation:breezeAC 1.3s ease-in-out infinite;transform-origin:center}
+.control.off .icon.ac svg{opacity:.8}
+@keyframes pulseGlow{0%,100%{filter:drop-shadow(0 0 4px #ffd34a) drop-shadow(0 0 10px #ffd34a) brightness(1.05)}50%{filter:drop-shadow(0 0 8px #ffd34a) drop-shadow(0 0 16px #ffd34a) brightness(1.2)}}
+.control.on .icon.light svg{animation:pulseGlow 1.4s ease-in-out infinite}
+.control.off .icon.light svg{opacity:.75;filter:grayscale(.1) brightness(.95)}
 
-@keyframes spinFan { to { transform: rotate(360deg); } }
-.control.on  .icon.fan svg { animation: spinFan .9s linear infinite; transform-origin:center; }
-.control.off .icon.fan svg { opacity:.65; }
-
-@keyframes breezeAC { 0%,100%{transform:translateX(0) rotate(0)} 50%{transform:translateX(2px) rotate(-2deg)} }
-.control.on  .icon.ac svg { animation: breezeAC 1.3s ease-in-out infinite; transform-origin:center; }
-.control.off .icon.ac svg { opacity:.8; }
-
-@keyframes pulseGlow {
-  0%,100% { filter: drop-shadow(0 0 4px #ffd34a) drop-shadow(0 0 10px #ffd34a) brightness(1.05); }
-  50%     { filter: drop-shadow(0 0 8px #ffd34a) drop-shadow(0 0 16px #ffd34a) brightness(1.2); }
-}
-.control.on  .icon.light svg { animation: pulseGlow 1.4s ease-in-out infinite; }
-.control.off .icon.light svg { opacity:.75; filter: grayscale(.1) brightness(.95); }
-
-/* Chart */
-html, body, #root { overflow: auto; }
-.main { overflow: auto; }
-
-/* ===== Responsive ===== */
-@media (max-width:1100px){
-  .content{grid-template-columns:1fr}
-}
+/* ========= RESPONSIVE ========= */
+@media (max-width:1100px){ .content{grid-template-columns:1fr} }
 @media (max-width:860px){
   .app{grid-template-columns:84px 1fr}
   .brand .title{display:none}
   .menu .item{justify-content:center;padding:0}
 }
-/* ===== Controls header: SSE + Live + Link + Refresh ===== */
-.controls{
-  background:#CEE8FF;
-  border-radius:22px;
-  padding:16px;
-  height:100%;
-  display:flex; flex-direction:column; gap:12px;
-  border:1px solid #dbeafe;
-  box-shadow: 0 10px 24px rgba(2,132,199,.10), inset 0 1px 0 rgba(255,255,255,.6);
-}
-
-.controls-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 12px; margin:-2px -2px 6px;
-  background: linear-gradient(180deg,#f8fbff,#eef6ff);
-  border:1px solid #dbeafe;
-  border-radius:14px;
-}
-
-.status{
-  display:flex; align-items:center; gap:10px;
-  font-weight:900; color:#0f172a; letter-spacing:.1px;
-}
-.status .dot{
-  width:10px; height:10px; border-radius:999px; background:#94a3b8;
-  box-shadow:0 0 0 4px rgba(148,163,184,.18), inset 0 1px 0 rgba(255,255,255,.6);
-}
-.status .dot.ok{ background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.2) }
-.status .dot.warn{ background:#f59e0b; box-shadow:0 0 0 4px rgba(245,158,11,.2) }
-.status .dot.bad{ background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.2) }
-
-.actions{ display:flex; gap:8px; }
-.btn{
-  height:34px; padding:0 12px; border-radius:12px;
-  border:1px solid #dbeafe; background:#f8fbff;
-  font-weight:900; color:#0f172a; display:inline-flex; align-items:center; gap:8px;
-  transition: transform .06s ease, background .2s ease, box-shadow .2s ease;
-}
-.btn:hover{ transform: translateY(-1px); background:#eef6ff; }
-.btn:active{ transform: translateY(0); }
-.btn.primary{ background:#0ea5e9; color:#fff; border-color:#0ea5e9; box-shadow:0 6px 14px rgba(14,165,233,.25) }
-
-/* ===== Hàng "Chart window" + Anchor ===== */
-/* Vì JSX đang dùng inline-style, ta override bằng !important để áp được style */
-.controls > div:nth-child(2){
-  display:flex !important;
-  align-items:center !important;
-  gap:10px !important;
-  margin:2px 0 8px !important;
-  padding:10px 12px;
-  border:1px dashed #dbeafe;
-  border-radius:12px;
-  background: linear-gradient(180deg,#fbfdff,#f3f9ff);
-}
-.controls > div:nth-child(2) > span{
-  font-weight:900; color:#0f172a;
-}
-
-/* Select kiểu "pill" */
-.controls > div:nth-child(2) select.btn{
-  height:36px !important;
-  appearance:none;
-  padding-right:34px;
-  border-radius:999px;
-  background:
-    linear-gradient(180deg,#ffffff,#f6fbff) padding-box,
-    radial-gradient(120% 120% at 50% -20%, #cde8ff, #e8f3ff) border-box;
-  border:1px solid #cfe3ff;
-  box-shadow:inset 0 1px 0 #fff, 0 6px 12px rgba(30,144,255,.08);
-  font-weight:900;
-  position:relative;
-}
-.controls > div:nth-child(2) select.btn:focus{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(56,189,248,.25), inset 0 1px 0 #fff;
-}
-
-/* Anchor “badge” bên phải hàng Chart window */
-.controls > div:nth-child(2) > div{
-  margin-left:auto !important;
-  display:grid; align-items:center; justify-items:end;
-  gap:2px;
-  font-weight:900; color:#334155;
-}
-.controls > div:nth-child(2) > div::before{
-  color:#64748b; font-weight:900; font-size:12px;
-  margin-bottom:2px;
-}
-.controls > div:nth-child(2) > div{
-  padding:8px 10px;
-  border-radius:12px;
-  background:#fff;
-  border:1px solid #e2ecff;
-  box-shadow: inset 0 1px 0 #fff, 0 6px 14px rgba(2,132,199,.06);
-  min-width:150px;
-}
-.controls > div:nth-child(2) > div{
-  font-variant-numeric: tabular-nums;
-}
-
-/* ===== Mỗi dòng control (device) – đậm nét hơn một chút ===== */
-.control{
-  display:grid; grid-template-columns:44px 1fr auto; align-items:center; gap:12px;
-  padding:16px; border-radius:16px;
-  background:linear-gradient(180deg,#f6fbff,#eaf5ff);
-  border:1px solid #d8ebff;
-  box-shadow: 0 8px 16px rgba(2,132,199,.08);
-}
-.control + .control{ margin-top:8px; }
-.control .label .name{ font-weight:900; color:#0f172a }
-.control .label .sub{ font-weight:700; color:#64748b; font-size:12px; margin-top:2px }
-
-.badge{
-  height:24px; padding:0 10px; border-radius:999px;
-  font-size:12px; font-weight:900; border:1px solid rgba(0,0,0,.06);
-}
-.badge.on{  background:#dcfce7; color:#166534; }
-.badge.off{ background:#fee2e2; color:#991b1b; }
-
-/* Toggle to hơn, mượt hơn (giữ class cũ) */
-.toggle{
-  --w:70px; --h:32px;
-  width:var(--w); height:var(--h); border:none; border-radius:999px; cursor:pointer;
-  background:#d1d5db; transition:background .2s ease, box-shadow .2s ease;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.18);
-}
-.toggle span{
-  position:absolute; left:5px; top:5px; width:22px; height:22px; border-radius:999px;
-  background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.18);
-  transition:transform .22s cubic-bezier(.22,.61,.36,1);
-}
-.toggle.on{ background:#22c55e; box-shadow:inset 0 1px 2px rgba(0,0,0,.12), 0 0 0 3px rgba(34,197,94,.16) }
-.toggle.on span{ transform:translateX(calc(var(--w) - 27px)) }
-
-/* Icon nổi khối nhẹ */
-.control .icon{
-  width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
-  background:linear-gradient(180deg,#ffffff,#f5fafe);
-  border:1px solid #e2ecff;
-  box-shadow: inset 0 1px 0 #fff, 0 6px 14px rgba(2,132,199,.06);
-}
-.control .icon svg{ width:22px; height:22px }
-.icon.ac   { color:#0ea5e9; }
-.icon.fan  { color:#3b82f6; }
-.icon.light{ color:#f59e0b; }
-/* === Controls header — nhóm nút gọn gàng, cân lề === */
-.controls-head{
-  gap:12px;
-}
-.status{
-  gap:10px; font-weight:900;
-}
-.status .dot{ width:12px; height:12px }
-
-/* Nhóm nút bên phải */
-.actions{ gap:10px }
-.btn{
-  height:36px; padding:0 14px; border-radius:12px;
-  display:inline-flex; align-items:center; gap:8px;
-}
-.btn svg{ width:16px; height:16px; display:block }
-.btn.primary{ box-shadow:0 6px 14px rgba(14,165,233,.18) }
-.btn.refresh:hover svg{ transform: rotate(-35deg); transition:transform .2s ease }
-
-/* === Hàng “Chart window” + Anchor — căn giữa theo hàng, anchor về mép phải === */
-.controls > div:nth-child(2){
-  display:flex !important; align-items:center !important;
-  gap:12px !important; padding:10px 12px;
-  border:1px dashed #dbeafe; border-radius:12px;
-  background:linear-gradient(180deg,#fbfdff,#f3f9ff);
-}
-.controls > div:nth-child(2) > span{
-  min-width:110px; font-weight:900; color:#0f172a;
-}
-
-/* Select kiểu pill đồng bộ kích thước với nút */
-.controls > div:nth-child(2) select.btn{
-  height:36px !important; line-height:36px;
-  border-radius:999px; padding:0 34px 0 12px; font-weight:900;
-  background:
-    linear-gradient(180deg,#ffffff,#f6fbff) padding-box,
-    radial-gradient(120% 120% at 50% -20%, #cde8ff, #e8f3ff) border-box;
-  border:1px solid #cfe3ff;
-  box-shadow:inset 0 1px 0 #fff, 0 6px 12px rgba(30,144,255,.08);
-}
-
-/* Huy hiệu Anchor sát mép phải, 2 dòng cân phải, số tabular-nums */
-.controls > div:nth-child(2) .anchor-badge{
-  margin-left:auto !important;
-  display:grid; justify-items:end; align-items:center; gap:2px;
-  padding:8px 10px; min-width:168px;
-  border:1px solid #e2ecff; border-radius:12px; background:#fff;
-  box-shadow: inset 0 1px 0 #fff, 0 6px 14px rgba(2,132,199,.06);
-  color:#334155; font-weight:900; font-variant-numeric: tabular-nums;
-}
-.controls > div:nth-child(2) .anchor-badge::before{
-  content:"Anchor:"; color:#64748b; font-size:12px; font-weight:900; margin-bottom:2px;
-}
-.controls > div:nth-child(2) .anchor-badge .time{ font-size:14px }
-.controls > div:nth-child(2) .anchor-badge .date{ font-size:12px; opacity:.95 }
-
-/* Responsive: khi hẹp thì Anchor xuống dòng dưới, full chiều ngang */
-@media (max-width: 420px){
-  .controls > div:nth-child(2){ flex-wrap:wrap }
-  .controls > div:nth-child(2) .anchor-badge{ margin-left:0 !important; width:100% }
+@media (max-width:420px){
+  .controls-subrow{flex-wrap:wrap}
+  .anchor-badge{margin-left:0;width:100%}
 }
