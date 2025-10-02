@@ -1,112 +1,150 @@
-/* =========================
-   Profile – clean, soft blue
-   ========================= */
+/* =======================================================
+   Profile.css – tidy & readable (refactor)
+   ======================================================= */
+
+/* ---------- Root variables ---------- */
 :root{
-  --panel:#ffffff;
-  --panel-soft:#e6f2ff;
-  --border:#5aa7ff;
-  --shadow:0 8px 24px rgba(11,130,255,.12);
-  --text:#0f172a;
-  --muted:#64748b;
+  --panel:#FFFFFF;
+  --panel-soft:#F2F6FF;
+
+  --primary:#1363FF;      /* main blue */
+  --primary-200:#9EC3FF;
+
+  --text:#000000;         /* main text */
+  --text-strong:#003194;  /* emphasized text */
+  --muted:#1d2531;        /* labels / secondary */
+
+  --ring:0 0 0 4px rgba(19,99,255,.18);
+  --shadow:0 10px 30px rgba(19,99,255,.12);
 }
 
-/* Page wrap */
-.pf-wrap{
-  padding: 6px 8px 0 8px;
-}
+/* ---------- Page ---------- */
+body{ background:var(--bg); }
+.pf-wrap{ padding:16px; }
 
-/* Title */
+/* ---------- Title ---------- */
 .pf-title{
-  margin: 0 0 10px 0;
-  text-align: center;
-  font-size: 48px;
-  font-weight: 900;
-  letter-spacing: .3px;
-  color: #fff;
-  text-shadow:0 3px 0 #0b82ff, 0 10px 22px rgba(11,130,255,.24);
+  margin:0 0 20px 0;
+  text-align:center;
+  font-size:clamp(28px,3.2vw,48px);
+  font-weight:900;
+  color:var(--text-strong);
 }
 
-/* Card layout */
+/* ---------- Card ---------- */
 .pf-card{
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
-  padding: 24px;
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 22px;
+  max-width:1100px;
+  margin:0 auto;
+  background:var(--panel);
+  border:2px solid var(--primary);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:clamp(16px,2.2vw,28px);
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:clamp(14px,2vw,28px);
 }
 
-/* LEFT */
+/* Title khi nằm trong khung trắng */
+.pf-title--in{
+  grid-column: 1 / -1;             /* span cả 2 cột */
+  margin: 0 0 -10px 0;
+  padding: 10px 0px;
+  text-align: center;
+  border-radius: 14px;
+  color: #5AA7FF;
+}
+
+/* Vì .pf-title không còn ở ngoài */
+.pf-title{ text-shadow: none; }     /* giữ màu chữ sắc nét hơn */
+
+
+/* ---------- Left (avatar) ---------- */
 .pf-left{ display:flex; align-items:flex-start; justify-content:center; }
+
 .pf-avatar{
-  border: 2px solid var(--border);
-  border-radius: 22px;
-  padding: 10px;
-  background: #f7fbff;
-  box-shadow: var(--shadow);
+  border:2px solid var(--primary);
+  border-radius:22px;
+  padding:10px;
+  background:var(--panel-soft);
+  box-shadow:var(--shadow);
 }
 .pf-avatar img{
   display:block;
-  width: 260px;
-  height: 360px;
-  object-fit: cover;
-  border-radius: 18px;
+  width:260px;
+  height:360px;
+  object-fit:cover;
+  border-radius:18px;
 }
 
-/* RIGHT */
+/* ---------- Right (info panel) ---------- */
 .pf-right{
-  background: var(--panel-soft);
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 24px 26px;
+  background:var(--panel-soft);
+  border:2px solid var(--primary);
+  border-radius:20px;
+  padding:clamp(16px,2.2vw,26px);
 }
 
+/* ---------- Field (label + value) ---------- */
 .pf-field{
   display:flex;
   align-items:center;
-  gap: 14px;
-  margin-bottom: 22px;
+  gap:16px;
+  margin-bottom:20px;
+  min-height:44px;
 }
 
 .pf-label{
-  min-width: 190px;
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow:
-    -1px -1px 0 #8fbfff,
-     1px -1px 0 #8fbfff,
-    -1px  1px 0 #8fbfff,
-     1px  1px 0 #8fbfff; /* viền chữ trắng giống ảnh */
+  min-width:200px;
+  font-size:clamp(18px,2.2vw,28px);
+  font-weight:800;
+  color:var(--muted);
+  line-height:1.1;
 }
 
 .pf-value{
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text);
+  font-size:clamp(18px,2.2vw,28px);
+  font-weight:900;
+  color:var(--text-strong);
+  word-break:break-word;
 }
 
-.pf-dim{ color:#94a3b8; font-weight:700; }
+/* gợi ý/placeholder mờ */
+.pf-dim{ color:#64748B; font-weight:700; }
 
-/* Buttons for links */
+/* ---------- Link buttons ---------- */
+.pf-links{ display:flex; gap:12px; flex-wrap:wrap; }
+
 .pf-link{
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: #ffffff;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(11,130,255,.12);
+  height:44px;
+  min-width:140px;
+  padding:0 16px;
+  border-radius:12px;
+  border:2px solid var(--primary);
+  background:#fff;
+  font-weight:800;
+  color:var(--text-strong);
+  cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(19,99,255,.12);
+  transition:transform .1s ease, box-shadow .2s ease, background .2s ease;
 }
-.pf-link:hover{ background:#eef6ff; }
+.pf-link:hover{ background:#EEF4FF; transform:translateY(-1px); }
+.pf-link:active{ transform:translateY(0); }
+.pf-link:focus-visible{ outline:none; box-shadow:var(--ring); }
 
-/* Responsive */
-@media (max-width: 1100px){
-  .pf-card{ grid-template-columns: 1fr; }
-  .pf-left{ justify-content: flex-start; }
-  .pf-avatar img{ width: 220px; height: 220px; }
-  .pf-label, .pf-value{ font-size: 24px; }
+/* nhấn mạnh một giá trị (ví dụ MSSV) */
+.pf-value--accent{ color:#0B3B91; }
+
+/* ---------- Responsive ---------- */
+@media (max-width:1120px){
+  .pf-card{ grid-template-columns:1fr; }
+  .pf-left{ justify-content:flex-start; }
+  .pf-avatar img{ width:220px; height:220px; }
+}
+@media (max-width:560px){
+  .pf-label{ min-width:160px; }
+  .pf-field{ align-items:flex-start; }
+  .pf-links{ width:100%; }
+  .pf-link{ flex:1; min-width:120px; }
 }

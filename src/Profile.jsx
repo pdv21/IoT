@@ -7,16 +7,15 @@ export default function Profile({
     avatar:"/ava.png",
     github: "https://github.com/pdv21/IoT",
     APIdoc: "https://documenter.getpostman.com/view/44306843/2sB3QDwszx",
-    pdf: ""             
+    pdf: "https://github.com/pdv21/IoT"             
   },
 }) {
   const open = (url) => url && window.open(url, "_blank", "noopener,noreferrer");
 
   return (
     <div className="pf-wrap">
-      <h1 className="pf-title">Profile</h1>
-
       <div className="pf-card">
+        <h1 className="pf-title pf-title--in">Profile</h1>
         {/* LEFT: avatar */}
         <div className="pf-left">
           <div className="pf-avatar">
