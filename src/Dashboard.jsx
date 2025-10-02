@@ -4,8 +4,6 @@ import {
   Snowflake,
   Lightbulb,
   RotateCcw,
-  Link,
-  Link2Off,
   Activity,
 } from "lucide-react";
 import "./styles/Dashboard.css";
@@ -132,12 +130,7 @@ function LineChart({
       <g className="legend" transform={`translate(${padding},${padding - 12})`}>
         {series.map((s, i) => (
           <g key={i} transform={`translate(${i * 210},0)`}>
-            <rect
-              width="16"
-              height="3"
-              y="-4"
-              className={`line ${s.className}`}
-            />
+            <rect width="16" height="3" y="-4" className={`line ${s.className}`} />
             <text x="22" y="0">
               {s.label} {s.axis === "left" ? "(Left Y)" : "(Right Y)"}
             </text>
@@ -217,6 +210,9 @@ export default function DashboardPage() {
   const [linked, setLinked] = useState(true);
   const [sseState, setSseState] = useState("disconnected");
   const esRef = useRef(null);
+
+  // >>> NEW: lưu thời điểm lần cuối tắt Live
+  const [lastLiveOffAt, setLastLiveOffAt] = useState(null);
 
   // ======== Chart window presets (ms) ========
   const [windowMs, setWindowMs] = useState(10 * 60_000); // mặc định 10 phút
@@ -351,9 +347,7 @@ export default function DashboardPage() {
     humCls = humLevel(latest.hum),
     luxCls = luxLevel(latest.lux);
 
-  /* ===== Chart view: auto theo giây (<=1m) hoặc theo phút (>1m) ===== */
-  // ===== Chart view: auto theo giây (<=1m) hoặc theo phút (>1m),
-  // carry-forward + carry-backward để không bị "khoảng trắng" ở đầu =====
+  /* ===== Chart view ===== */
   const chartView = useMemo(() => {
     const useSecond = windowMs <= 60_000;
     const unitMs = useSecond ? 1000 : 60_000;
@@ -418,7 +412,7 @@ export default function DashboardPage() {
       if (picked) lastVal = val; // cập nhật cho carry-forward
     }
 
-    // 3) CARRY-BACKWARD: nếu đoạn đầu toàn null, đổ ngược bằng giá trị hợp lệ đầu tiên
+    // 3) Carry-backward
     const firstIdx = out.findIndex(
       (p) => p.temp != null || p.hum != null || p.lux != null
     );
@@ -460,6 +454,27 @@ export default function DashboardPage() {
       setLoadingAction(false);
     }
   }
+
+  // >>> NEW: handler cho nút Live, lưu thời điểm khi chuyển sang Off
+  const handleToggleLive = () => {
+    setLive((prev) => {
+      const next = !prev;
+      if (!next) setLastLiveOffAt(new Date());
+      return next;
+    });
+  };
+
+  const lastPausedText =
+    lastLiveOffAt &&
+    lastLiveOffAt.toLocaleString("en-GB", {
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
   return (
     <div className="board">
@@ -523,63 +538,54 @@ export default function DashboardPage() {
           <LineChart
             data={chartView}
             series={[
-              {
-                key: "temp",
-                label: "Temperature (°C)",
-                className: "s-temp",
-                axis: "left",
-              },
-              {
-                key: "hum",
-                label: "Humidity (%)",
-                className: "s-hum",
-                axis: "left",
-              },
-              {
-                key: "lux",
-                label: "Light (Lux)",
-                className: "s-lux",
-                axis: "right",
-              },
+              { key: "temp", label: "Temperature (°C)", className: "s-temp", axis: "left" },
+              { key: "hum",  label: "Humidity (%)",    className: "s-hum",  axis: "left" },
+              { key: "lux",  label: "Light (Lux)",     className: "s-lux",  axis: "right" },
             ]}
           />
         </div>
 
         {/* CONTROLS */}
-        {/* CONTROLS */}
-<div className="card controls">
-  <div className="controls-head">
-    <div className="actions">
-      <button
-        className={`btn ${live ? "primary" : ""}`}
-        onClick={() => setLive(v => !v)}
-      >
-        {live ? "Live On" : "Live Off"}
-      </button>
-      <button className="btn refresh" onClick={handleRefresh}>
-        <RotateCcw size={16} /> Refresh
-      </button>
-    </div>
-  </div>
+        <div className="card controls">
+          <div className="controls-head">
+            <div className="actions">
+              <button
+                className={`btn ${live ? "primary" : ""}`}
+                onClick={handleToggleLive}
+              >
+                {live ? "Live On" : "Live Off"}
+              </button>
+              <button className="btn refresh" onClick={handleRefresh}>
+                <RotateCcw size={16} /> Refresh
+              </button>
+            </div>
 
-  {/* Chart window selector */}
-  <div className="controls-subrow">
-    <span className="cw-label">Chart window:</span>
-    <select
-      value={windowMs}
-      onChange={async (e) => {
-        const v = +e.target.value;
-        setWindowMs(v);
-        await fetchWindowByNow(v);
-      }}
-      className="btn cw-select"
-      title="Hiển thị dữ liệu trong vòng N đơn vị thời gian gần nhất (so với hiện tại)"
-    >
-      {presets.map((p) => (
-        <option key={p.value} value={p.value}>{p.label}</option>
-      ))}
-    </select>
-  </div>
+            {/* NEW: hiển thị thời gian lần cuối tắt Live */}
+            <div className="live-meta">
+              {lastPausedText && <>Last paused: {lastPausedText}</>}
+            </div>
+          </div>
+
+          {/* Chart window selector */}
+          <div className="controls-subrow">
+            <span className="cw-label">Chart window:</span>
+            <select
+              value={windowMs}
+              onChange={async (e) => {
+                const v = +e.target.value;
+                setWindowMs(v);
+                await fetchWindowByNow(v);
+              }}
+              className="btn cw-select"
+              title="Hiển thị dữ liệu trong vòng N đơn vị thời gian gần nhất (so với hiện tại)"
+            >
+              {presets.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className={`control ${ac ? "on" : "off"}`}>
             <div className="icon ac">
@@ -590,9 +596,7 @@ export default function DashboardPage() {
               <div className="sub">Cooling control • Auto</div>
             </div>
             <div className="right">
-              <span className={`badge ${ac ? "on" : "off"}`}>
-                {ac ? "ON" : "OFF"}
-              </span>
+              <span className={`badge ${ac ? "on" : "off"}`}>{ac ? "ON" : "OFF"}</span>
               <Toggle
                 on={ac}
                 onChange={(v) => {
@@ -613,9 +617,7 @@ export default function DashboardPage() {
               <div className="sub">Air circulation</div>
             </div>
             <div className="right">
-              <span className={`badge ${fan ? "on" : "off"}`}>
-                {fan ? "ON" : "OFF"}
-              </span>
+              <span className={`badge ${fan ? "on" : "off"}`}>{fan ? "ON" : "OFF"}</span>
               <Toggle
                 on={fan}
                 onChange={(v) => {
@@ -636,9 +638,7 @@ export default function DashboardPage() {
               <div className="sub">Ambient lighting</div>
             </div>
             <div className="right">
-              <span className={`badge ${lamp ? "on" : "off"}`}>
-                {lamp ? "ON" : "OFF"}
-              </span>
+              <span className={`badge ${lamp ? "on" : "off"}`}>{lamp ? "ON" : "OFF"}</span>
               <Toggle
                 on={lamp}
                 onChange={(v) => {
