@@ -9,7 +9,130 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===== Utils: sort & time parsing =====
+/* ==================== ONLINE TRACKING (USB + SENSOR) ==================== */
+/** Online nếu: (A) tìm thấy thiết bị USB phù hợp, HOẶC (B) có mẫu SensorData trong <= ONLINE_WINDOW_MS */
+const ONLINE_WINDOW_MS = 15_000;
+
+// Cho phép cấu hình nhận diện USB qua ENV (khuyến nghị thiết lập để nhận diện chính xác):
+//   ESP_VID=10C4        (vendorId, hex không '0x')
+//   ESP_PID=EA60        (productId, hex)
+//   ESP_PATH=ttyUSB     (chuỗi gợi ý trong path, ví dụ 'ttyUSB' / 'COM' / 'cu.SLAB_USBtoUART')
+const USB_HINT = {
+  vid: (process.env.ESP_VID || '').toLowerCase(),
+  pid: (process.env.ESP_PID || '').toLowerCase(),
+  pathHint: (process.env.ESP_PATH || '')
+};
+
+let SerialPortListFn = null;
+try {
+  // Dùng dynamic import để không crash nếu chưa cài "serialport"
+  const mod = await import('serialport');
+  SerialPortListFn = mod.SerialPort?.list || mod.SerialPortList || null;
+} catch {
+  SerialPortListFn = null;
+}
+
+async function detectUsbOnline() {
+  if (!SerialPortListFn) return { online: false, via: 'sensor-only' };
+  try {
+    const ports = await SerialPortListFn();
+    const match = ports.find(p => {
+      const vid = (p.vendorId || '').toLowerCase();
+      const pid = (p.productId || '').toLowerCase();
+      const path = (p.path || '');
+      const byVid = USB_HINT.vid && vid === USB_HINT.vid;
+      const byPid = USB_HINT.pid && pid === USB_HINT.pid;
+      const byPath = USB_HINT.pathHint && path.includes(USB_HINT.pathHint);
+      return byVid || byPid || byPath;
+    });
+    return { online: !!match, via: 'usb' };
+  } catch {
+    return { online: false, via: 'sensor-only' };
+  }
+}
+
+async function getLastSensorTime() {
+  const [[row]] = await pool.query('SELECT MAX(time) AS last FROM SensorData');
+  return row?.last ? new Date(row.last) : null;
+}
+async function detectSensorOnline() {
+  const last = await getLastSensorTime();
+  if (!last) return { online: false, last_seen: null };
+  const diff = Date.now() - last.getTime();
+  return { online: diff <= ONLINE_WINDOW_MS, last_seen: last };
+}
+
+// Tập tất cả client SSE (cả status stream lẫn sensors stream)
+const sseClients = new Set();
+
+function broadcast(event, dataObj) {
+  const payload = `event: ${event}\ndata: ${JSON.stringify(dataObj || {})}\n\n`;
+  for (const res of sseClients) {
+    try { res.write(payload); } catch {}
+  }
+}
+
+// Gửi lại trạng thái mong muốn khi thiết bị online trở lại
+async function resendLatestActionsIfOnline() {
+  const want = {};
+  const [rows] = await pool.query(
+    `SELECT da.nameDevice, da.action
+       FROM DeviceActions da
+       INNER JOIN (
+         SELECT nameDevice, MAX(timestamp) AS ts
+         FROM DeviceActions
+         WHERE nameDevice IN ('air conditioner','fan','light')
+         GROUP BY nameDevice
+       ) t
+       ON da.nameDevice = t.nameDevice AND da.timestamp = t.ts`
+  );
+  for (const r of rows) {
+    want[String(r.nameDevice).toLowerCase()] = String(r.action).toUpperCase();
+  }
+  // Gửi lại các lệnh ON mong muốn (chờ 1s để firmware khởi động xong)
+  setTimeout(() => {
+    for (const name of ['air conditioner','fan','light']) {
+      const act = want[name] || 'OFF';
+      if (act === 'ON') {
+        try { sendByDeviceName(name, 'ON'); } catch {}
+      }
+    }
+  }, 1000);
+}
+
+// Trạng thái online hợp nhất
+let prevOnline = null;
+let lastOnlineSource = 'unknown';
+let lastSeenAt = null;
+
+async function recomputeAndBroadcastOnline(reason = 'poll') {
+  const usb = await detectUsbOnline();                 // {online, via}
+  const sens = await detectSensorOnline();             // {online, last_seen}
+  const online = usb.online || sens.online;
+  lastOnlineSource = usb.online ? 'usb' : (sens.online ? 'sensor' : 'none');
+  lastSeenAt = sens.last_seen || (online ? new Date() : lastSeenAt);
+
+  if (prevOnline === null || online !== prevOnline) {
+    broadcast('device_online', { online, source: lastOnlineSource, last_seen: lastSeenAt });
+    // Nếu vừa online lại → phục hồi trạng thái
+    if (online === true && prevOnline === false) {
+      await resendLatestActionsIfOnline();
+    }
+    prevOnline = online;
+  }
+}
+
+/* ==================== HEALTH ==================== */
+app.get('/health', async (_req, res) => {
+  try {
+    const [r] = await pool.query('SELECT 1 AS ok');
+    res.json({ ok: r[0].ok === 1 });
+  } catch {
+    res.json({ ok: false });
+  }
+});
+
+/* ==================== SENSORS (giữ nguyên logic cũ) ==================== */
 const SENSOR_SORT_WHITELIST = new Set(['id','temperature','humidity','light','time']);
 function parseSort(sort = 'time:desc') {
   let [col, dir] = String(sort).split(':');
@@ -19,7 +142,6 @@ function parseSort(sort = 'time:desc') {
   if (!['ASC','DESC'].includes(dir)) dir = 'DESC';
   return { col, dir };
 }
-
 function expandAt(atStr) {
   if (!atStr) return [null, null];
   const now = new Date();
@@ -28,7 +150,6 @@ function expandAt(atStr) {
   const ymd = /^(\d{4})-(\d{2})-(\d{2})$/;
   const ymd_hm = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/;
   const ymd_hms = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/;
-
   let from, to;
   if (hhmm.test(s)) {
     const [,H,M] = s.match(hhmm);
@@ -63,18 +184,6 @@ function expandAt(atStr) {
   return [null, null];
 }
 
-// ===== Health =====
-app.get('/health', async (_req, res) => {
-  try {
-    const [r] = await pool.query('SELECT 1 AS ok');
-    res.json({ ok: r[0].ok === 1 });
-  } catch {
-    res.json({ ok: false });
-  }
-});
-
-// ===== SensorData API =====
-// Hỗ trợ: /api/sensors?key=temperature|humidity|light&q=...&at=...&from=...&to=...&sort=col:dir&page=&limit=
 app.get('/api/sensors', async (req, res) => {
   try {
     const page   = Math.max(parseInt(req.query.page)  || 1, 1);
@@ -83,11 +192,10 @@ app.get('/api/sensors', async (req, res) => {
 
     const { col, dir } = parseSort(req.query.sort);
     const qRaw  = (req.query.q || '').trim();
-    const key   = String(req.query.key || '').toLowerCase(); // NEW
+    const key   = String(req.query.key || '').toLowerCase();
     const where = [];
     const params = [];
 
-    // --- Thời gian: ưu tiên `at` (mở rộng tới phút/giờ/ngày), sau đó from/to ---
     if (req.query.at) {
       const [from, to] = expandAt(req.query.at);
       if (from && to) { where.push('time BETWEEN ? AND ?'); params.push(from, to); }
@@ -96,35 +204,23 @@ app.get('/api/sensors', async (req, res) => {
       if (req.query.to)   { where.push('time <= ?'); params.push(new Date(req.query.to)); }
     }
 
-    // --- Tìm theo giá trị ---
     if (qRaw) {
       const NUMERIC_COLS = new Set(['temperature','humidity','light']);
-
-      // Nếu có `key` hợp lệ -> chỉ tìm đúng 1 cột đó
       if (NUMERIC_COLS.has(key)) {
-        // 1) Số nguyên: n  =>  n.00 .. < n+1 (bao trọn .xx)
         if (/^[0-9]+$/.test(qRaw)) {
           const n = parseInt(qRaw, 10);
           where.push(`${key} >= ? AND ${key} < ?`);
           params.push(n, n + 1);
-        }
-        // 2) Tiền tố thập phân: "39." hay "39.5" => dùng LIKE bắt đầu bằng tiền tố
-        else if (/^[0-9]+\.[0-9]*$/.test(qRaw)) {
+        } else if (/^[0-9]+\.[0-9]*$/.test(qRaw)) {
           where.push(`CAST(${key} AS CHAR) LIKE ?`);
-          // "39." -> "39.%", "39.5" -> "39.5%"
           params.push(`${qRaw}%`);
-        }
-        // 3) Chuỗi khác => contains
-        else {
+        } else {
           where.push(`CAST(${key} AS CHAR) LIKE ?`);
           params.push(`%${qRaw}%`);
         }
-      }
-      // Nếu KHÔNG có `key` -> giữ hành vi tổng quát hiện tại (tìm trên cả 3 cột)
-      else {
+      } else {
         const num = Number(qRaw);
         if (!Number.isNaN(num)) {
-          // so sánh bằng số cho temperature/humidity; light có thể là int
           where.push('(temperature = ? OR humidity = ? OR light = ?)');
           params.push(num, num, Math.trunc(num));
         } else {
@@ -162,14 +258,13 @@ app.get('/api/sensors', async (req, res) => {
   }
 });
 
-// ===== DeviceActions API =====
+/* ==================== ACTIONS LIST ==================== */
 app.get('/api/actions', async (req, res) => {
   try {
     const page  = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 200);
     const offset = (page - 1) * limit;
 
-    // sort theo timestamp hoặc id
     const sort = (req.query.sort || 'timestamp:desc');
     let [col, dir] = String(sort).split(':');
     col = ['id','nameDevice','action','timestamp'].includes(col) ? col : 'timestamp';
@@ -178,10 +273,7 @@ app.get('/api/actions', async (req, res) => {
     const where = [];
     const params = [];
     const q = (req.query.q || '').trim();
-    if (q) {
-      where.push('(nameDevice LIKE ? OR action LIKE ?)');
-      params.push(`%${q}%`,`%${q}%`);
-    }
+    if (q) { where.push('(nameDevice LIKE ? OR action LIKE ?)'); params.push(`%${q}%`,`%${q}%`); }
     if (req.query.from) { where.push('timestamp >= ?'); params.push(new Date(req.query.from)); }
     if (req.query.to)   { where.push('timestamp <= ?'); params.push(new Date(req.query.to)); }
 
@@ -204,16 +296,20 @@ app.get('/api/actions', async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Server error' }); }
 });
 
-// Gửi lệnh điều khiển: body { nameDevice?, action: "LED1:ON" }
+/* ==================== ACTIONS WRITE (CHẶN KHI OFFLINE) ==================== */
 app.post('/api/actions', async (req, res) => {
   try {
     const { nameDevice, action, actionText } = req.body || {};
 
+    // CHẶN nếu thiết bị đang offline (USB hoặc Sensor đều báo off)
+    await recomputeAndBroadcastOnline('pre-post');
+    if (prevOnline === false) {
+      return res.status(503).json({ error: 'Device is offline' });
+    }
+
     if (actionText) {
-      // hỗ trợ ngược định dạng LED1:ON
       sendCommandByActionString(actionText);
-      await pool.query('INSERT INTO DeviceActions (nameDevice, action) VALUES (?, ?)',
-                       [nameDevice || '', actionText]);
+      await pool.query('INSERT INTO DeviceActions (nameDevice, action) VALUES (?, ?)', [nameDevice || '', actionText]);
       return res.status(201).json({ ok: true });
     }
 
@@ -221,10 +317,7 @@ app.post('/api/actions', async (req, res) => {
       return res.status(400).json({ error: 'nameDevice (fan|air conditioner|light) & action (ON|OFF) are required' });
     }
 
-    // publish MQTT đúng thiết bị
     sendByDeviceName(nameDevice, action);
-
-    // lưu log (ghi đúng tên thiết bị bạn yêu cầu)
     await pool.query('INSERT INTO DeviceActions (nameDevice, action) VALUES (?, ?)',
                      [nameDevice, action.toUpperCase()]);
 
@@ -234,9 +327,45 @@ app.post('/api/actions', async (req, res) => {
   }
 });
 
-// ===== Sensors SSE stream (realtime) =====
+/* ==================== ACTIONS STATE (SOURCE OF TRUTH) ==================== */
+app.get('/api/actions/state', async (_req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT da.nameDevice, da.action
+         FROM DeviceActions da
+         INNER JOIN (
+           SELECT nameDevice, MAX(timestamp) AS ts
+           FROM DeviceActions
+           WHERE nameDevice IN ('air conditioner','fan','light')
+           GROUP BY nameDevice
+         ) t
+         ON da.nameDevice = t.nameDevice AND da.timestamp = t.ts`
+    );
+    const state = { 'air conditioner': false, fan: false, light: false };
+    for (const r of rows) {
+      const name = String(r.nameDevice || '').toLowerCase();
+      const on = String(r.action || '').toUpperCase() === 'ON';
+      if (name in state) state[name] = on;
+    }
+    res.json({ ac: state['air conditioner'], fan: state['fan'], light: state['light'] });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to read action state' });
+  }
+});
+
+/* ==================== ONLINE INFO API ==================== */
+app.get('/api/device/online', async (_req, res) => {
+  try {
+    await recomputeAndBroadcastOnline('http');
+    res.json({ online: prevOnline === true, source: lastOnlineSource, last_seen: lastSeenAt });
+  } catch {
+    res.status(500).json({ error: 'Cannot determine device online state' });
+  }
+});
+
+/* ==================== SSE: SENSORS STREAM (giữ, nhưng cũng add vào sseClients) ==================== */
 app.get('/api/sensors/stream', async (req, res) => {
-  // headers SSE
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -245,10 +374,10 @@ app.get('/api/sensors/stream', async (req, res) => {
   });
   res.flushHeaders?.();
 
-  // tham số cửa sổ chart (phút), mặc định 10
+  sseClients.add(res);
+
   const windowMin = Math.max(parseInt(req.query.window) || 10, 1);
 
-  // gửi dữ liệu khởi tạo cho chart: 10 phút gần nhất
   try {
     const [initRows] = await pool.query(
       `SELECT id, temperature, humidity, light, time
@@ -264,40 +393,58 @@ app.get('/api/sensors/stream', async (req, res) => {
     res.write(`data: ${JSON.stringify({ message: 'Init query failed' })}\n\n`);
   }
 
-  // theo dõi bản ghi mới (poll nhẹ DB)
-  let lastId = 0;
-  const checkLatest = async () => {
-    try {
-      const [rows] = await pool.query(
-        `SELECT id, temperature, humidity, light, time
-         FROM SensorData
-         ORDER BY id DESC
-         LIMIT 1`
-      );
-      if (rows.length && rows[0].id !== lastId) {
-        lastId = rows[0].id;
-        res.write(`event: new\n`);
-        res.write(`data: ${JSON.stringify(rows[0])}\n\n`);
-      }
-    } catch { /* bỏ qua lần lỗi đơn lẻ */ }
-  };
+  // Gửi trạng thái online hiện thời ngay khi kết nối
+  await recomputeAndBroadcastOnline('sensors:open');
 
-  // heartbeat để giữ kết nối
-  const hb = setInterval(() => {
-    res.write(`event: ping\ndata: {}\n\n`);
-  }, 15000);
-
-  const poll = setInterval(checkLatest, 2000); // 2s/lần
-
-  // dọn khi client đóng
   req.on('close', () => {
-    clearInterval(poll);
-    clearInterval(hb);
+    sseClients.delete(res);
     res.end();
   });
 });
 
+/* ==================== SSE: STATUS STREAM (mới, chỉ để nghe device_online) ==================== */
+app.get('/api/status/stream', async (_req, res) => {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+  });
+  res.flushHeaders?.();
 
-// ===== Start server =====
+  sseClients.add(res);
+
+  // Gửi trạng thái hiện tại ngay khi client nối vào
+  await recomputeAndBroadcastOnline('status:open');
+
+  _req.on('close', () => {
+    sseClients.delete(res);
+    res.end();
+  });
+});
+
+/* ==================== PERIODIC PUSH ==================== */
+let lastId = 0;
+async function periodicPush() {
+  // new sensor row
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, temperature, humidity, light, time
+       FROM SensorData
+       ORDER BY id DESC
+       LIMIT 1`
+    );
+    if (rows.length && rows[0].id !== lastId) {
+      lastId = rows[0].id;
+      broadcast('new', rows[0]);
+    }
+  } catch {}
+
+  // online (kết hợp USB + Sensor)
+  await recomputeAndBroadcastOnline('poll');
+}
+setInterval(periodicPush, 2000);
+
+/* ==================== START ==================== */
 const port = +process.env.PORT || 4000;
 app.listen(port, () => console.log(`API running at http://localhost:${port}`));

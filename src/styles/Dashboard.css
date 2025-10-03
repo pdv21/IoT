@@ -341,3 +341,18 @@ html, body, #root { overflow:auto; }
   .controls-subrow{ flex-wrap:wrap }
   .anchor-badge{ margin-left:0; width:100% }
 }
+/* === Remove the status dot in live-meta === */
+.controls .live-meta::before{
+  content: none !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* tighten spacing since the dot is gone */
+.controls .live-meta{
+  padding-left: 12px;   /* was 12 + dot margin */
+  gap: 10px;            /* a bit tighter now */
+}

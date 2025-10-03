@@ -7,7 +7,7 @@ export default function Profile({
     avatar:"/ava.png",
     github: "https://github.com/pdv21/IoT",
     APIdoc: "https://documenter.getpostman.com/view/44306843/2sB3QDwszx",
-    pdf: "https://github.com/pdv21/IoT"             
+    pdf: "https://docs.google.com/document/d/1TTCB2qogF9-JorSer2qSDUgHOZfkzlOd/edit?usp=sharing&ouid=117534923940571598753&rtpof=true&sd=true"             
   },
 }) {
   const open = (url) => url && window.open(url, "_blank", "noopener,noreferrer");
